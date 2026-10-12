@@ -1,0 +1,42 @@
+[
+  {
+    "question": "七天无理由退货政策是什么",
+    "source": "policy",
+    "ground_truth": "买家签收后7天内，不影响二次销售的商品可无理由退货，运费由买家承担；商家赠送运费险则退货运费由保险公司赔付。"
+  },
+  {
+    "question": "运费险怎么赔付",
+    "source": "policy",
+    "ground_truth": "运费险为商家赠送，退货运费按实际产生费用赔付，首重内最高赔付25元，超出部分需买家自理。"
+  },
+  {
+    "question": "15天换货政策是什么",
+    "source": "policy",
+    "ground_truth": "签收后15天内商品出现性能故障（非人为），可申请换货，换货运费由商家承担。"
+  },
+  {
+    "question": "价保政策是怎样的",
+    "source": "policy",
+    "ground_truth": "天猫自营/旗舰店商品支持7天价保，降价可申请差价退还，需在商品页面申请价保。"
+  },
+  {
+    "question": "退款多久能到账",
+    "source": "policy",
+    "ground_truth": "确认收货前申请退款，商家同意后1-3个工作日到账；确认收货后退货退款，商家签收并验收后1-5个工作日到账。"
+  },
+  {
+    "question": "iPhone 和华为哪个续航好",
+    "source": "product",
+    "ground_truth": "从电池容量对比，苹果 iPhone 多为4000-5000mAh，华为机型多为4000-4500mAh，部分 iPhone 机型续航更占优势。"
+  },
+  {
+    "question": "小米和苹果手机哪个好",
+    "source": "product",
+    "ground_truth": "两者各有优势，需从价格、电池容量、保修、卖点等多个维度综合对比后选择。"
+  },
+  {
+    "question": "苹果 iPhone 15 的电池容量是多少",
+    "source": "product",
+    "ground_truth": "苹果 iPhone 15 手机电池容量约 4000mAh 至 5000mAh，视具体型号和存储配置而定。"
+  }
+]

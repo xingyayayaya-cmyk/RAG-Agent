@@ -1,0 +1,30 @@
+# ===== 版本控制 / 编辑器 =====
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+
+# ===== Python 缓存 =====
+__pycache__
+*.pyc
+*.pyo
+.ipynb_checkpoints
+
+# ===== 大模型权重（首次启动由 scripts/download_models.py 自动下载）=====
+rag_qa/models
+# BERT 微调训练产物
+rag_qa/core/bert_results
+rag_qa/core/tmp_trainer
+
+# ===== 运行期产物 =====
+logs
+*.log
+data/*.pkl
+data/milvus_lite.db
+
+# ===== 数据集不打进镜像（需要灌库时通过 volume 挂载）=====
+dataset
+
+# ===== 文档/演示等大文件按需保留 =====
+docs/*.html

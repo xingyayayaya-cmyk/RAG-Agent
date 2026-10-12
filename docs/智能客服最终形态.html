@@ -1,0 +1,149 @@
+!DOCTYPE html
+html lang=zh-CN
+head
+meta charset=UTF-8
+title客服 Copilot 工作台title
+style
+     { box-sizing border-box; margin 0; padding 0; font-family -apple-system, sans-serif; }
+    body { background #e6e8eb; display flex; justify-content center; align-items center; height 100vh; }
+    
+     整体工作台布局：左侧客户聊天，右侧AI副驾 
+    .workstation { width 1200px; height 90vh; display flex; gap 15px; }
+    
+     左侧：客户聊天窗口（模拟京麦千牛） 
+    .customer-chat { flex 1; background #fff; border-radius 8px; box-shadow 0 2px 10px rgba(0,0,0,0.05); display flex; flex-direction column; }
+    .chat-header { padding 15px; border-bottom 1px solid #eee; font-weight bold; color #333; }
+    .chat-messages { flex 1; padding 15px; overflow-y auto; display flex; flex-direction column; gap 15px; }
+    .msg { max-width 80%; padding 10px 14px; border-radius 8px; font-size 14px; line-height 1.5; }
+    .msg.customer { align-self flex-start; background #f0f2f5; color #333; }
+    .msg.agent { align-self flex-end; background #007bff; color #fff; }
+    .input-area { padding 15px; border-top 1px solid #eee; display flex; gap 10px; }
+    .input-area input { flex 1; padding 10px; border 1px solid #ddd; border-radius 6px; outline none; }
+
+     右侧：AI Copilot 侧边栏 
+    .copilot-sidebar { width 420px; background #fff; border-radius 8px; box-shadow 0 2px 10px rgba(0,0,0,0.1); display flex; flex-direction column; border 1px solid #e0e0e0; }
+    .copilot-header { padding 15px; background #f8f9fa; border-bottom 1px solid #eee; border-radius 8px 8px 0 0; display flex; justify-content space-between; align-items center; }
+    .copilot-header h3 { font-size 16px; color #1a73e8; display flex; align-items center; gap 5px; }
+    .copilot-body { flex 1; padding 15px; overflow-y auto; display flex; flex-direction column; gap 15px; background #fafafa; }
+
+     Copilot 卡片模块 
+    .card { background #fff; border 1px solid #e0e0e0; border-radius 8px; padding 12px; }
+    .card-title { font-size 12px; font-weight bold; color #666; margin-bottom 8px; display flex; align-items center; gap 5px; }
+    
+     多Agent标签 
+    .agent-tag { font-size 10px; padding 2px 6px; border-radius 4px; color #fff; }
+    .tag-presales { background #34a853; }  售前 
+    .tag-aftersales { background #ea4335; }  售后 
+    .tag-order { background #fbbc04; color #333; }  订单 
+
+     AI推荐答案 
+    .suggestion-box { background #f0f7ff; border 1px solid #cce5ff; border-radius 6px; padding 12px; font-size 13px; color #333; line-height 1.6; margin-bottom 10px; position relative; }
+    .suggestion-box .actions { display flex; gap 8px; margin-top 10px; }
+    .btn-send { background #1a73e8; color white; border none; padding 6px 12px; border-radius 4px; font-size 12px; cursor pointer; }
+    .btn-edit { background #fff; color #1a73e8; border 1px solid #1a73e8; padding 6px 12px; border-radius 4px; font-size 12px; cursor pointer; }
+    
+     知识溯源 
+    .source-list { font-size 11px; color #888; }
+    .source-item { display flex; align-items center; gap 5px; margin-top 5px; }
+    .source-item span { background #e8f0fe; color #1a73e8; padding 2px 6px; border-radius 4px; }
+
+     风险提示 
+    .risk-warning { background #fff3f3; border 1px solid #ffcdd2; color #c62828; padding 10px; border-radius 6px; font-size 12px; display flex; align-items flex-start; gap 8px; }
+    
+     底部快捷操作 
+    .copilot-footer { padding 10px 15px; border-top 1px solid #eee; background #fff; display flex; gap 8px; flex-wrap wrap; border-radius 0 0 8px 8px; }
+    .quick-btn { background #f1f3f4; border none; padding 6px 10px; border-radius 4px; font-size 12px; color #555; cursor pointer; }
+style
+head
+body
+
+div class=workstation
+    !-- 左侧：客户聊天窗口 --
+    div class=customer-chat
+        div class=chat-header📱 客户聊天窗口（京麦千牛）div
+        div class=chat-messages
+            div class=msg customer对比一下 AWS 和 GCP 的 GPU 实例价格，哪个更适合LLM微调？另外我上周买的那个订单能补差价吗？div
+            div class=msg agent您好，正在为您查询，请稍等~div
+        div
+        div class=input-area
+            input type=text placeholder=客服输入框（一键发送AI推荐内容）...
+        div
+    div
+
+    !-- 右侧：AI Copilot 侧边栏 --
+    div class=copilot-sidebar
+        div class=copilot-header
+            h3✨ AI 智能辅助 (Copilot)h3
+            span style=font-size12px; color#34a853;● 在线span
+        div
+        
+        div class=copilot-body
+            !-- 1. 多Agent意图识别 --
+            div class=card
+                div class=card-title🔀 意图识别与路由 (主Agent)div
+                div style=font-size12px; color#555; line-height1.8;
+                    用户意图：span class=agent-tag tag-presales售前咨询span + span class=agent-tag tag-aftersales售后咨询spanbr
+                    子查询拆解：① GPU实例对比 ② 订单补差价
+                div
+            div
+
+            !-- 2. AI推荐答案（来源于子Agent） --
+            div class=card
+                div class=card-title💡 推荐回复（售前 Agent）div
+                div class=suggestion-box
+                    b关于 GPU 实例对比：bbr
+                    AWS p4d.24xlarge 约 $32.77小时；GCP A100 约 $3.67小时。br
+                    i建议：预算有限选 GCP，能容忍中断选 AWS Spot。i
+                div
+                div class=actions
+                    button class=btn-send一键发送button
+                    button class=btn-edit编辑button
+                div
+            div
+
+            div class=card
+                div class=card-title💡 推荐回复（售后订单 Agent）div
+                div class=suggestion-box
+                    b关于补差价：bbr
+                    经查订单 #12345，符合 7 天保价规则，可退 50 元。建议引导用户点击“申请补差价”。
+                div
+                div class=actions
+                    button class=btn-send一键发送button
+                    button class=btn-edit编辑button
+                div
+            div
+
+            !-- 3. 知识溯源（解决AI幻觉） --
+            div class=card
+                div class=card-title📚 知识溯源 (HyDE + RAG)div
+                div class=source-list
+                    div class=source-item✅ 命中知识：span商品库_GPU实例价格对比.pdfspan (相似度 0.92)div
+                    div class=source-item✅ 命中知识：span售后政策_7天保价规则.docxspan (相似度 0.88)div
+                    div class=source-item style=color#c62828;⚠️ 注意：政策库存在多平台规则差异，请人工核对。div
+                div
+            div
+
+            !-- 4. 风险控制提示 --
+            div class=card style=border-color #ffcdd2;
+                div class=card-title style=color#c62828;🛡️ 风险控制提示div
+                div class=risk-warning
+                    span⚠️span
+                    div
+                        检测到客户提及“补差价”，涉及资金变动。建议核对订单状态后再发送，避免越权承诺。
+                    div
+                div
+            div
+        div
+
+        !-- 底部快捷操作 --
+        div class=copilot-footer
+            button class=quick-btn📋 复制话术button
+            button class=quick-btn🔍 查订单button
+            button class=quick-btn📞 转人工button
+            button class=quick-btn🔄 重新生成button
+        div
+    div
+div
+
+body
+html

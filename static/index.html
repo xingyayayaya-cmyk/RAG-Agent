@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能客服（电商）· 测试台</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --primary: #2b6de8;
+      --primary-dark: #1f56c0;
+      --user-bubble: #2b6de8;
+      --ai-bubble: #ffffff;
+      --border: #e3e6ea;
+      --text: #1f2329;
+      --muted: #8a919c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      background: var(--bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 17px; font-weight: 600; color: var(--text); }
+    header .status {
+      font-size: 12px; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #c6cad0; display: inline-block;
+    }
+    .dot.on { background: #22c55e; }
+    .dot.busy { background: #f59e0b; }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .row { display: flex; gap: 10px; max-width: 860px; width: 100%; margin: 0 auto; }
+    .row.user { justify-content: flex-end; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff;
+    }
+    .row.ai .avatar { background: #22c55e; }
+    .row.user .avatar { background: var(--primary); order: 2; }
+    .bubble {
+      padding: 11px 15px; border-radius: 14px;
+      font-size: 14px; line-height: 1.65;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .row.ai .bubble {
+      background: var(--ai-bubble);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+      color: var(--text);
+    }
+    .row.user .bubble {
+      background: var(--user-bubble);
+      color: #fff;
+      border-top-right-radius: 4px;
+    }
+    .row.ai .bubble.typing { color: var(--muted); }
+    .meta { font-size: 11px; color: var(--muted); text-align: center; }
+    #chips {
+      padding: 10px 20px 6px;
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+      max-width: 900px; margin: 0 auto; width: 100%;
+    }
+    .chip {
+      font-size: 13px; color: var(--primary);
+      background: #eaf1fe; border: 1px solid #d3e2fb;
+      padding: 6px 12px; border-radius: 16px; cursor: pointer;
+      transition: all .15s;
+    }
+    .chip:hover { background: #d9e6fd; }
+    #input-bar {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+    .input-wrap {
+      max-width: 860px; margin: 0 auto; display: flex; gap: 10px;
+    }
+    textarea {
+      flex: 1; resize: none; border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px; font-size: 14px;
+      font-family: inherit; line-height: 1.5; height: 52px;
+      outline: none; color: var(--text);
+    }
+    textarea:focus { border-color: var(--primary); }
+    button#send {
+      border: none; background: var(--primary); color: #fff;
+      border-radius: 12px; padding: 0 24px; font-size: 14px; cursor: pointer;
+      transition: background .15s; flex-shrink: 0;
+    }
+    button#send:hover { background: var(--primary-dark); }
+    button#send:disabled { background: #b9c6de; cursor: not-allowed; }
+    .note { text-align: center; font-size: 11px; color: var(--muted); padding: 6px 0 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🤖 智能客服（电商）· 测试台</h1>
+    <div class="status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">连接中…</span>
+    </div>
+  </header>
+
+  <div id="chat"></div>
+
+  <div id="chips">
+    <div class="chip" data-q="iPhone 和华为哪个续航好">iPhone 和华为哪个续航好</div>
+    <div class="chip" data-q="七天无理由退货政策是什么">七天无理由退货政策</div>
+    <div class="chip" data-q="我要投诉！太垃圾了">我要投诉（转人工）</div>
+    <div class="chip" data-q="给我讲个笑话">闲聊</div>
+  </div>
+
+  <div id="input-bar">
+    <div class="input-wrap">
+      <textarea id="q" placeholder="输入您的问题，回车发送（Shift+Enter 换行）…"></textarea>
+      <button id="send">发送</button>
+    </div>
+    <div class="note">WebSocket 流式输出 · 每个问题一条连接</div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('q');
+    const sendBtn = document.getElementById('send');
+    const dot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+
+    // 会话 ID：优先复用本地存储，否则生成新 UUID
+    function getSessionId() {
+      let sid = localStorage.getItem('znkf_session');
+      if (!sid) {
+        sid = (crypto.randomUUID ? crypto.randomUUID() : 's' + Date.now());
+        localStorage.setItem('znkf_session', sid);
+      }
+      return sid;
+    }
+    const sessionId = getSessionId();
+
+    function setStatus(state, text) {
+      dot.className = 'dot ' + state;
+      statusText.textContent = text;
+    }
+
+    function addRow(role) {
+      const row = document.createElement('div');
+      row.className = 'row ' + role;
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = role === 'user' ? '我' : '客';
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+      return bubble;
+    }
+
+    // 发送一条问题，建立 WS 连接流式接收
+    function ask(query) {
+      query = query.trim();
+      if (!query) return;
+
+      addRow('user').textContent = query;
+      const bubble = addRow('ai');
+      bubble.classList.add('typing');
+      bubble.textContent = '思考中…';
+
+      setStatus('busy', '处理中…');
+      sendBtn.disabled = true;
+      input.disabled = true;
+
+      const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const ws = new WebSocket(proto + location.host + '/api/stream');
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ query: query, session_id: sessionId }));
+      };
+
+      ws.onmessage = (ev) => {
+        let msg;
+        try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        if (msg.type === 'start') {
+          bubble.classList.remove('typing');
+          bubble.textContent = '';
+        } else if (msg.type === 'token') {
+          bubble.classList.remove('typing');
+          bubble.textContent += msg.token;
+          chat.scrollTop = chat.scrollHeight;
+        } else if (msg.type === 'end') {
+          if (!bubble.textContent) bubble.textContent = '（无内容）';
+          setStatus('on', '在线');
+          sendBtn.disabled = false;
+          input.disabled = false;
+          input.focus();
+        } else if (msg.type === 'error') {
+          bubble.classList.remove('typing');
+          bubble.textContent = '出错了：' + (msg.error || '未知错误');
+          bubble.style.color = '#dc2626';
+          setStatus('on', '在线');
+          sendBtn.disabled = false;
+          input.disabled = false;
+        }
+      };
+
+      ws.onerror = () => {
+        bubble.classList.remove('typing');
+        bubble.textContent = '连接失败，请确认后端服务已启动（python app.py）。';
+        bubble.style.color = '#dc2626';
+        setStatus('on', '连接失败');
+        sendBtn.disabled = false;
+        input.disabled = false;
+      };
+
+      ws.onclose = () => {
+        if (sendBtn.disabled) { // 异常提前关闭
+          setStatus('on', '在线');
+          sendBtn.disabled = false;
+          input.disabled = false;
+        }
+      };
+    }
+
+    sendBtn.addEventListener('click', () => { ask(input.value); input.value = ''; });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        ask(input.value);
+        input.value = '';
+      }
+    });
+
+    document.querySelectorAll('.chip').forEach((c) => {
+      c.addEventListener('click', () => ask(c.dataset.q));
+    });
+
+    // 初始欢迎语 + 探测后端
+    (async function boot() {
+      try {
+        const r = await fetch('/health');
+        if (r.ok) {
+          setStatus('on', '在线');
+        } else {
+          setStatus('', '后端未就绪');
+        }
+      } catch (e) {
+        setStatus('', '后端未连接');
+      }
+      const hello = addRow('ai');
+      hello.textContent = '您好！我是电商智能客服。可以帮您查商品、比参数、查订单、问售后政策；遇到强情绪投诉我会自动转人工。\n试试下方快捷问题，或直接输入。';
+    })();
+  </script>
+</body>
+</html>
